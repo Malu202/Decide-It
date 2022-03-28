@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decide-It</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="decisionPage">
+        <textarea id="optionsInput" name="Options"></textarea>
+        <div>
+            <label for="splitBy">Split by:</label>
+            <select name="splitBy" id="splitBySelect">
+                <option value="newline">New Line</option>
+                <option value=",">Comma (,)</option>
+                <option value=" ">Space</option>
+                <option value=";">Semicolon (;)</option>
+                <option value=".">Period (.)</option>
+                <option value="-">Dash (-)</option>
+            </select>
+            <button id="startButton">Start comparing</button>
+            <span id="optionsAmount">0 options detected.</span>
+        </div>
+        <progress value="0" max="1" id="progressBar"></progress>
+        <div id="decisionButtons">
+            <button disabled id="leftButton"></button>
+            <button disabled id="rightButton"></button>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+
+</html>
