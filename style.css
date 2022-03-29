@@ -4,6 +4,7 @@ body {
     height: 100%;
     margin: 0px;
     padding: 0px;
+    font-family: 'Roboto', sans-serif;
 }
 
 #decisionPage {
@@ -23,8 +24,58 @@ body {
 
 }
 
+#inputOutput {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+}
+
+#inputOutput>* {
+    flex: 1 1 1px;
+}
+
+#historyAndResult {
+    margin-left: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+#historyAndResult>* {
+    flex: 1 1 1px;
+    overflow-y: auto;
+    margin-bottom: 8px;
+}
+
+#historyAndResult>label {
+    flex: 0 1 auto;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+
+#history>* {
+    background-color: lightblue;
+    margin-bottom: 8px;
+    margin-right: 8px;
+    padding: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+
+#deleteHistory {
+    position: absolute;
+    right: 0px;
+}
+
+#historyHeadline {
+    position: relative;
+    overflow: visible;
+}
+
 #optionsInput {
-    flex: 1 0 auto;
     resize: none;
     margin-bottom: 8px;
 }
@@ -42,4 +93,17 @@ body {
 #progressBar {
     width: 100%;
     margin-top: 8px;
+}
+
+button:enabled {
+    cursor: pointer;
+}
+
+select {
+    cursor: pointer;
+}
+
+.material-icons,
+.material-icons-outlined {
+    cursor: pointer;
 }

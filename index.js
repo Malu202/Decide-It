@@ -6,6 +6,10 @@ let optionsInput = document.getElementById("optionsInput");
 let splitBySelect = document.getElementById("splitBySelect");
 let optionsAmount = document.getElementById("optionsAmount");
 let progressBar = document.getElementById("progressBar");
+let results = document.getElementById("results");
+let history = document.getElementById("history");
+let deleteHistory = document.getElementById("deleteHistory");
+let inviteButton = document.getElementById("inviteButton");
 
 let decisions = 0;
 
@@ -24,7 +28,7 @@ async function decide(arr) {
     decisions = 0
     leftButton.disabled = false;
     rightButton.disabled = false;
-    let result = await mergeSort(arr);
+    let result = await mergeSort(shuffleArray(arr));
     result.reverse();
     leftButton.innerText = "";
     rightButton.innerText = "";
@@ -34,7 +38,8 @@ async function decide(arr) {
 
     console.log(decisions + " decisions");
     console.log(result);
-    alert(result.join("\n"));
+    results.innerText = result.join("\n");
+    saveToHistory(result);
     progressBar.value = 0;
     return result;
 }
@@ -62,6 +67,15 @@ async function isBetterThan(value1, value2) {
 }
 
 startButton.addEventListener("click", function () {
+    decide(parseInput());
+});
+optionsInput.addEventListener("change", function () {
+    parseInput();
+});
+splitBySelect.addEventListener("change", function () {
+    parseInput();
+})
+function parseInput() {
     let options = optionsInput.value;
     let splitBy = splitBySelect.value;
     if (splitBy == "newline") splitBy = '\n';
@@ -77,9 +91,8 @@ startButton.addEventListener("click", function () {
     }
     optionsAmount.innerText = arr.length + " options detected => " + numberOfComparisons(arr.length) + " comparisons at max.";
     expectedMaximumComparisons = numberOfComparisons(arr.length);
-
-    decide(arr);
-});
+    return arr;
+}
 
 let expectedMaximumComparisons = Infinity;
 function numberOfComparisons(lengthOfArray) {
@@ -135,3 +148,51 @@ async function mergeSort(arr) {
     // merging the two sorted halves
     return await merge(left, right);
 }
+
+function createHistoryElement(array) {
+    let historyElement = document.createElement("div");
+    historyElement.innerText = array.join(',');
+    historyElement.addEventListener("click", function () {
+        optionsInput.value = array.join("\n");
+    });
+
+    history.insertBefore(historyElement, history.childNodes[0]);
+}
+function saveToHistory(array) {
+    let storageJSON = JSON.parse(localStorage.getItem("Decide-It"));
+    if (storageJSON == null && storageJSON.history == null) storageJSON.history = [array];
+    else storageJSON.history.push(array);
+    localStorage.setItem("Decide-It", JSON.stringify(storageJSON));
+    createHistoryElement(array);
+}
+
+function loadHistory() {
+    let storageJSON = JSON.parse(localStorage.getItem("Decide-It"));
+    if (storageJSON == null || storageJSON.history == null) return;
+    for (let i = 0; i < storageJSON.history.length; i++) {
+        createHistoryElement(storageJSON.history[i])
+    }
+}
+loadHistory();
+deleteHistory.addEventListener("click", function () {
+    localStorage.removeItem("Decide-It");
+    history.innerText = "";
+})
+
+let sampleHistory = '{"history":[["Müsli","Toast","Spaghetti"],["3","2","1"],["Müsli","Toast","Spaghetti"],["3","2","1"],["Priester","Jäger","Mage"],["Müsli","Toast","Spaghetti"],["3","2","1"],["Müsli","Toast","Spaghetti"],["3","2","1"],["Priester","Jäger","Mage"],["Müsli","Toast","Spaghetti"],["3","2","1"],["Müsli","Toast","Spaghetti"],["3","2","1"],["Priester","Jäger","Mage"],["Müsli","Toast","Spaghetti"],["3","2","1"],["Müsli","Toast","Spaghetti"],["3","2","1"],["Priester","Jäger","Mage"],["nächstes ultralanges wort um zu überprüfen obst passt","ultra langes wort um abgeschnittenen text zu überprüfen","das wird teilweise umgebrochen, mal schauen obs passt"],["Löffel","Gabel","Messer"]]}';
+function setSampleHistory() {
+    localStorage.setItem("Decide-It", sampleHistory);
+}
+function shuffleArray(array) {
+    var j, x, i;
+    for (i = array.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = array[i];
+        array[i] = array[j];
+        array[j] = x;
+    }
+    return array;
+}
+// inviteButton.addEventListener("click", function () {
+
+// })

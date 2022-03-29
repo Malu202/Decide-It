@@ -8,11 +8,27 @@
     <title>Decide-It</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Outlined&family=Roboto" rel="stylesheet">
+
+    <!-- <link href="https://fonts.googleapis.com/css?family=Roboto:wght@100&display=swap&family=Material+Icons" rel="stylesheet"> -->
 </head>
 
 <body>
     <div id="decisionPage">
-        <textarea id="optionsInput" name="Options" placeholder="Put your possible options here..."></textarea>
+        <div id="inputOutput">
+            <textarea id="optionsInput" name="Options" placeholder="Put your possible options here..."></textarea>
+            <div id="historyAndResult">
+
+                <label id="historyHeadline">
+                    <label for="history">History:</label>
+                    <label id="deleteHistory" class="material-icons-outlined">delete</label>
+                </label>
+                <div id="history"></div>
+                <label for="results">Results:</label>
+                <div id="results"></div>
+
+            </div>
+        </div>
         <div>
             <label for="splitBy">Split by:</label>
             <select name="splitBy" id="splitBySelect">
@@ -24,6 +40,8 @@
                 <option value="-">Dash (-)</option>
             </select>
             <button id="startButton">Start comparing</button>
+            <!-- <button id="inviteButton">Invite others</button> -->
+
             <span id="optionsAmount">0 options detected.</span>
         </div>
         <progress value="0" max="1" id="progressBar"></progress>
