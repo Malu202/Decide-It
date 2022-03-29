@@ -38,10 +38,41 @@ async function decide(arr) {
 
     console.log(decisions + " decisions");
     console.log(result);
-    results.innerText = result.join("\n");
+
+    let ownResults = document.getElementById("ownResults");
+    if (ownResults) ownResults.remove();
+    results.insertBefore(createResultsOutput(result, "Me"), results.childNodes[results.childNodes.length - 2]);
+    // results.appendChild(createResultsOutput(result, "Me"))
     saveToHistory(result);
     progressBar.value = 0;
     return result;
+}
+function createResultsOutput(results, name) {
+    let personResult = document.createElement("div");
+    let nameDiv = document.createElement("label");
+    if (name == null) name = "External"
+    nameDiv.innerText = name + ':';
+    let list = document.createElement("div");
+
+    let listContent = [];
+    for (let i = 0; i < results.length; i++) {
+        listContent[i] = (i + 1) + ". " + results[i];
+    }
+    list.innerText = listContent.join("\n");
+
+    personResult.appendChild(nameDiv);
+    personResult.appendChild(list);
+    if (name == "Me") {
+        personResult.id = "ownResults";
+        let shareResultButton = document.createElement("button");
+        shareResultButton.innerText = "Export";
+        shareResultButton.addEventListener("click", function () {
+            // shareUrlToOS()
+        });
+        //personResult.appendChild(shareResultButton);
+    }
+
+    return personResult;
 }
 
 async function test() {
@@ -67,13 +98,16 @@ async function isBetterThan(value1, value2) {
 }
 
 startButton.addEventListener("click", function () {
+    updateURL();
     decide(parseInput());
 });
 optionsInput.addEventListener("change", function () {
-    parseInput();
+    // parseInput();
+    updateURL();
 });
 splitBySelect.addEventListener("change", function () {
-    parseInput();
+    // parseInput();
+    updateURL();
 })
 function parseInput() {
     let options = optionsInput.value;
@@ -193,6 +227,47 @@ function shuffleArray(array) {
     }
     return array;
 }
-// inviteButton.addEventListener("click", function () {
 
-// })
+function shareUrlToOS(shareUrl, title, then, notSupported) {
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            text: '',
+            url: shareUrl
+        }).then(() => {
+            if (then) then();
+        }).catch(err => {
+            console.log(`Couldn't share because of`, err.message);
+        });
+    } else {
+        if (notSupported) notSupported();
+        console.log('web share not supported');
+    }
+}
+inviteButton.addEventListener("click", async function () {
+    let shareUrl = updateURL();
+    shareUrlToOS(shareUrl, 'Join the decision:', null, function () { alert("Sharing not supported. You can copy the URL from your address bar and send it to your friends to invite them.") });
+
+})
+function updateURL() {
+    let options = parseInput();
+    for (let i = 0; i < options.length; i++) {
+        options[i] = options[i].replace(',', '');
+    }
+    options = options.join(',')
+    let shareUrl;
+    if (window.location.hostname != "") shareUrl = new URL(window.location.pathname, window.location.hostname);
+    else shareUrl = new URL(window.location.pathname.slice(1))
+    shareUrl.searchParams.set('options', encodeURIComponent(options));
+    window.history.pushState({ info: "hi" }, "", shareUrl);
+    return shareUrl;
+}
+function loadFromUrlQuery() {
+    let urlSearchParams = new URLSearchParams(window.location.search);
+    let params = Object.fromEntries(urlSearchParams.entries());
+    if (!params.options) return;
+    let options = decodeURIComponent(params.options).split(',');
+
+    optionsInput.value = options.join('\n')
+}
+loadFromUrlQuery();

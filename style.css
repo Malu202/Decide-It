@@ -107,3 +107,18 @@ select {
 .material-icons-outlined {
     cursor: pointer;
 }
+
+#results label {
+    font-weight: bold;
+}
+
+#results {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#results>* {
+    margin-right: 8px;
+}
