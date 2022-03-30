@@ -271,3 +271,72 @@ function loadFromUrlQuery() {
     optionsInput.value = options.join('\n')
 }
 loadFromUrlQuery();
+
+async function encodeResults(arr, results) {
+    let points = sortedArrayToPointsArray(arr, results);
+    let outputSizeBits = points.length * 8;
+
+    let outputArray = new Uint8Array(outputSizeBits / 8);
+    outputArray.fill(1);
+
+    let outputView = new DataView(outputArray.buffer);
+    for (let i = 0; i < outputSizeBits / 8; i++) {
+        outputView.setUint8(i, points[i])
+    }
+    console.log(points)
+    console.log("encoding: " + points);
+    console.log(await base64_arraybuffer(outputArray));
+    // console.log(window.btoa(outputArray));
+    decodeResults(await base64_arraybuffer(outputArray));
+}
+function decodeResults(base64Results) {
+    console.log("decoding:");
+    // let weird = window.atob(base64Results);
+    // let byteArray = Uint8Array.from(weird);
+    // let view = new DataView(byteArray.buffer);
+
+    // let points = []
+    // for (let i = 0; i < byteArray.length; i++) {
+    //     let point = view.getUint8(i);
+    //     console.log("adding: " + point);
+    //     points.push(point)
+    // }
+    let byteArray = window.atob(base64Results);
+    let points = []
+    for (let i = 0; i < byteArray.length; i++) {
+        let point = window.atob("AgED9A==").charCodeAt(i);
+        console.log("adding: " + point);
+        points.push(point);
+    }
+    console.log(points)
+
+}
+const base64_arraybuffer = async (data) => {
+    // Use a FileReader to generate a base64 data URI
+    const base64url = await new Promise((r) => {
+        const reader = new FileReader()
+        reader.onload = () => r(reader.result)
+        reader.readAsDataURL(new Blob([data]))
+    })
+
+    /*
+    The result looks like 
+    "data:application/octet-stream;base64,<your base64 data>", 
+    so we split off the beginning:
+    */
+    return base64url.split(",", 2)[1]
+}
+
+
+
+function sortedArrayToPointsArray(options, sortedResults) {
+    if (options.length != sortedResults.length) return null;
+    let points = [];
+    for (let i = 0; i < options.length; i++) {
+        for (let j = 0; j < sortedResults.length; j++) {
+            if (options[i] == sortedResults[j]) points.push(options.length - j);
+        }
+    }
+    if (points.length != options.length) return null;
+    return points;
+}
