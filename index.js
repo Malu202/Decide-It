@@ -256,7 +256,7 @@ function updateURL() {
     }
     options = options.join(',')
     let shareUrl;
-    if (window.location.hostname != "") shareUrl = new URL(window.location.pathname, url.protocol + "//" + window.location.hostname);
+    if (window.location.hostname != "") shareUrl = new URL(window.location.pathname, window.location.protocol + "//" + window.location.hostname);
     else shareUrl = new URL(window.location.pathname.slice(1))
     shareUrl.searchParams.set('options', encodeURIComponent(options));
     window.history.pushState({ info: "hi" }, "", shareUrl);
