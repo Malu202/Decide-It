@@ -10,6 +10,9 @@ let results = document.getElementById("results");
 let history = document.getElementById("history");
 let deleteHistory = document.getElementById("deleteHistory");
 let inviteButton = document.getElementById("inviteButton");
+let importFromOthersButton = document.getElementById("importFromOthersButton");
+let importInput = document.getElementById("importInput");
+let calculateTotal = document.getElementById("calculateTotal");
 
 let decisions = 0;
 
@@ -41,22 +44,23 @@ async function decide(arr) {
 
     let ownResults = document.getElementById("ownResults");
     if (ownResults) ownResults.remove();
-    results.insertBefore(createResultsOutput(result, "Me"), results.childNodes[results.childNodes.length - 2]);
+    createResultsOutput(arr, result, "Me")
     // results.appendChild(createResultsOutput(result, "Me"))
     saveToHistory(result);
     progressBar.value = 0;
     return result;
 }
-function createResultsOutput(results, name) {
+async function createResultsOutput(optionsArray, resultsArray, name) {
     let personResult = document.createElement("div");
     let nameDiv = document.createElement("label");
     if (name == null) name = "External"
     nameDiv.innerText = name + ':';
     let list = document.createElement("div");
+    list.classList.add("resultsList");
 
     let listContent = [];
-    for (let i = 0; i < results.length; i++) {
-        listContent[i] = (i + 1) + ". " + results[i];
+    for (let i = 0; i < resultsArray.length; i++) {
+        listContent[i] = (i + 1) + ". " + resultsArray[i];
     }
     list.innerText = listContent.join("\n");
 
@@ -65,14 +69,22 @@ function createResultsOutput(results, name) {
     if (name == "Me") {
         personResult.id = "ownResults";
         let shareResultButton = document.createElement("button");
-        shareResultButton.innerText = "Export";
+        let encodedResults = await encodeResults(optionsArray, resultsArray);
+        shareResultButton.innerText = "Copy: " + encodedResults;
         shareResultButton.addEventListener("click", function () {
-            // shareUrlToOS()
+            copyToClipboard(encodedResults);
         });
         personResult.appendChild(shareResultButton);
+    } else {
+        let deleteButton = document.createElement("button");
+        deleteButton.innerText = "Delete";
+        deleteButton.addEventListener("click", function () {
+            results.removeChild(personResult);
+        });
+        personResult.appendChild(deleteButton);
     }
-
-    return personResult;
+    results.insertBefore(personResult, results.childNodes[results.childNodes.length - 1]);
+    // return personResult;
 }
 
 async function test() {
@@ -218,21 +230,23 @@ function setSampleHistory() {
     localStorage.setItem("Decide-It", sampleHistory);
 }
 function shuffleArray(array) {
+    //clone array to avoid overriding original order
+    let shuffledArray = array.slice();
     var j, x, i;
-    for (i = array.length - 1; i > 0; i--) {
+    for (i = shuffledArray.length - 1; i > 0; i--) {
         j = Math.floor(Math.random() * (i + 1));
-        x = array[i];
-        array[i] = array[j];
-        array[j] = x;
+        x = shuffledArray[i];
+        shuffledArray[i] = shuffledArray[j];
+        shuffledArray[j] = x;
     }
-    return array;
+    return shuffledArray;
 }
 
 function shareUrlToOS(shareUrl, title, then, notSupported) {
     if (navigator.share) {
         navigator.share({
             title: title,
-            text: '',
+            text: shareUrl,
             url: shareUrl
         }).then(() => {
             if (then) then();
@@ -244,6 +258,20 @@ function shareUrlToOS(shareUrl, title, then, notSupported) {
         console.log('web share not supported');
     }
 }
+function copyToClipboard(text, onerror, callback) {
+    navigator.permissions.query({ name: "clipboard-write" }).then((result) => {
+        if (result.state == "granted" || result.state == "prompt") {
+            navigator.clipboard.writeText(text).then(() => {
+                if (callback) callback()
+            }, (e) => {
+                if (onerror) onerror(e)
+            });
+        } else {
+            if (onerror) onerror(result)
+        }
+    });
+}
+
 inviteButton.addEventListener("click", async function () {
     let shareUrl = updateURL();
     shareUrlToOS(shareUrl, 'Join the decision:', null, function () { alert("Sharing not supported. You can copy the URL from your address bar and send it to your friends to invite them.") });
@@ -269,8 +297,16 @@ function loadFromUrlQuery() {
     let options = decodeURIComponent(params.options).split(',');
 
     optionsInput.value = options.join('\n')
+    parseInput();
 }
 loadFromUrlQuery();
+
+importFromOthersButton.addEventListener("click", function () {
+    let points = decodeResults(importInput.value);
+    let options = parseInput();
+    let resultsArray = pointsArrayToSortedArray(options, points);
+    createResultsOutput(options, resultsArray, null);
+})
 
 async function encodeResults(arr, results) {
     let points = sortedArrayToPointsArray(arr, results);
@@ -287,7 +323,7 @@ async function encodeResults(arr, results) {
     console.log("encoding: " + points);
     console.log(await base64_arraybuffer(outputArray));
     // console.log(window.btoa(outputArray));
-    decodeResults(await base64_arraybuffer(outputArray));
+    return await base64_arraybuffer(outputArray);
 }
 function decodeResults(base64Results) {
     console.log("decoding:");
@@ -304,12 +340,11 @@ function decodeResults(base64Results) {
     let byteArray = window.atob(base64Results);
     let points = []
     for (let i = 0; i < byteArray.length; i++) {
-        let point = window.atob("AgED9A==").charCodeAt(i);
-        console.log("adding: " + point);
+        let point = byteArray.charCodeAt(i);
         points.push(point);
     }
     console.log(points)
-
+    return points;
 }
 const base64_arraybuffer = async (data) => {
     // Use a FileReader to generate a base64 data URI
@@ -340,3 +375,48 @@ function sortedArrayToPointsArray(options, sortedResults) {
     if (points.length != options.length) return null;
     return points;
 }
+// function pointsArrayToSortedArray(options, points) {
+//     if (options.length != points.length) return null;
+//     let sortedArray = [];
+//     for (let i = 0; i < points.length; i++) {
+//         sortedArray[points[i] - 1] = options[i];
+//     }
+//     sortedArray.reverse();
+//     return sortedArray;
+// }
+function pointsArrayToSortedArray(options, points) {
+    if (options.length != points.length) return null;
+    let pointsArray = points.slice();
+    let sortedArray = [];
+    for (let i = 0; i < points.length; i++) {
+        let highestScore = Math.max.apply(null, pointsArray);
+        let highestScoreIndex = pointsArray.indexOf(highestScore);
+        sortedArray.push(options[highestScoreIndex])
+        pointsArray[highestScoreIndex] = -Infinity;
+    }
+    return sortedArray;
+}
+
+
+calculateTotal.addEventListener("click", function () {
+    let persons = results.children;
+    let options = parseInput();
+    let totalPoints = [];
+    for (let i = 0; i < persons.length; i++) {
+        let htmlList = persons[i].getElementsByClassName("resultsList")[0].innerText;
+        let sortedList = htmlList.split('\n');
+        for (let j = 0; j < sortedList.length; j++) {
+            sortedList[j] = sortedList[j].substring(sortedList[j].indexOf('.') + 2)
+        }
+        let pointList = sortedArrayToPointsArray(options, sortedList);
+        if (pointList == null) {
+            alert("Error, lists are not matching");
+        }
+        for (let k = 0; k < pointList.length; k++) {
+            if (totalPoints[k] == null) totalPoints[k] = 0;
+            totalPoints[k] += pointList[k];
+        }
+    }
+    alert(pointsArrayToSortedArray(options, totalPoints).join('\n'))
+
+})

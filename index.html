@@ -16,17 +16,24 @@
 <body>
     <div id="decisionPage">
         <div id="inputOutput">
-            <textarea id="optionsInput" name="Options" placeholder="Put your possible options here..."></textarea>
-            <div id="historyAndResult">
+            <div id="optionsInputAndHistory">
+                <textarea id="optionsInput" name="Options" placeholder="Put your possible options here..."></textarea>
 
                 <label id="historyHeadline">
                     <label for="history">History:</label>
                     <label id="deleteHistory" class="material-icons-outlined">delete</label>
                 </label>
                 <div id="history"></div>
+
+            </div>
+            <div id="resultsAndImports">
                 <label for="results">Results:</label>
+                <label id="importForm">
+                    <input type="text" name="" id="importInput">
+                    <button id="importFromOthersButton">Import</button>
+                    <button id="calculateTotal">Total</button>
+                </label>
                 <div id="results">
-                    <button id="importFromOthersButton">Import from others</button>
                 </div>
 
             </div>
