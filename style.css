@@ -92,7 +92,7 @@ body {
 
 #leftButton,
 #rightButton {
-    height: 256px;
+    height: 128px;
     flex: 1 1 auto;
 }
 

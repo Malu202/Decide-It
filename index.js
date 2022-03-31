@@ -369,7 +369,7 @@ function sortedArrayToPointsArray(options, sortedResults) {
     let points = [];
     for (let i = 0; i < options.length; i++) {
         for (let j = 0; j < sortedResults.length; j++) {
-            if (options[i] == sortedResults[j]) points.push(options.length - j);
+            if (options[i] == sortedResults[j]) points.push(options.length - j - 1);
         }
     }
     if (points.length != options.length) return null;
@@ -396,7 +396,25 @@ function pointsArrayToSortedArray(options, points) {
     }
     return sortedArray;
 }
+function rankingWithPossibleDraws(options, points) {
+    let sortedArray = pointsArrayToSortedArray(options, points);
+    let pointsSorted = points.sort(function (a, b) {
+        return b - a;
+    });
+    let output = "";
+    for (let i = 0; i < sortedArray.length; i++) {
+        let place = i + 1;
+        output += place + ". " + sortedArray[i] + " (" + pointsSorted[i] + " Pts.)\n";
 
+        let samePlaceIndex = 1;
+        while (i + samePlaceIndex < sortedArray.length && pointsSorted[i + samePlaceIndex] == pointsSorted[i]) {
+            output += place + ". " + sortedArray[i + samePlaceIndex] + " (" + pointsSorted[i + samePlaceIndex] + " Pts.)\n";
+            samePlaceIndex++;
+        }
+        i += samePlaceIndex - 1;
+    }
+    return output;
+}
 
 calculateTotal.addEventListener("click", function () {
     let persons = results.children;
@@ -417,6 +435,6 @@ calculateTotal.addEventListener("click", function () {
             totalPoints[k] += pointList[k];
         }
     }
-    alert(pointsArrayToSortedArray(options, totalPoints).join('\n'))
+    alert(rankingWithPossibleDraws(options, totalPoints))
 
 })
