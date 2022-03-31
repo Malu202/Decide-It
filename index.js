@@ -207,7 +207,8 @@ function createHistoryElement(array) {
 }
 function saveToHistory(array) {
     let storageJSON = JSON.parse(localStorage.getItem("Decide-It"));
-    if (storageJSON == null && storageJSON.history == null) storageJSON.history = [array];
+    if (storageJSON == null) storageJSON={};
+    If (storageJSON.history == null) storageJSON.history = [array];
     else storageJSON.history.push(array);
     localStorage.setItem("Decide-It", JSON.stringify(storageJSON));
     createHistoryElement(array);
