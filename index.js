@@ -247,7 +247,7 @@ function shareUrlToOS(shareUrl, title, then, notSupported) {
     if (navigator.share) {
         navigator.share({
             title: title,
-            text: shareUrl,
+            text: "Take part in the decision:",
             url: shareUrl
         }).then(() => {
             if (then) then();
