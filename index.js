@@ -200,6 +200,7 @@ function createHistoryElement(array) {
     historyElement.innerText = array.join(',');
     historyElement.addEventListener("click", function () {
         optionsInput.value = array.join("\n");
+        updateURL();
     });
 
     history.insertBefore(historyElement, history.childNodes[0]);

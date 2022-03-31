@@ -94,6 +94,7 @@ body {
 #rightButton {
     height: 128px;
     flex: 1 1 auto;
+    font-size: x-large;
 }
 
 #leftButton {
